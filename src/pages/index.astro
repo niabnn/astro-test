@@ -1,16 +1,20 @@
 ---
+import BlogsCardsGrid from "@/components/BlogsCardsGrid.astro";
+import { Button } from "@/components/ui/button";
+
 interface WPPost {
   slug: string;
   title: { rendered: string };
   content: { rendered: string };
+  excerpt: { rendered: string };
   _embedded?: {
-	'wp:featuredmedia'?: Array<{
-	  media_details?: {
-		sizes?: {
-		  medium?: { source_url: string };
-		};
-	  };
-	}>;
+    "wp:featuredmedia"?: Array<{
+      media_details?: {
+        sizes?: {
+          medium?: { source_url: string };
+        };
+      };
+    }>;
   };
   // Add other fields as needed
 }
@@ -32,26 +36,34 @@ const posts: WPPost[] = await res.json();
       style="background: #E6A4F7FF; color: #fff; padding: 2rem 0; text-align: center;"
     >
       <h1>Regular Raspberry Blog</h1>
+      <button class="btn-primary"> ver blogs </button>
+
       <p>{posts[2].title?.rendered}</p>
     </header>
-    <main style="max-width: 700px; margin: 2rem auto; padding: 1rem;">
+    <main >
       <section>
-		<!-- Display featured image using _embedded -->
-		 -
+        <!-- Display featured image using _embedded -->
+        -
         {
           posts.map((post) => (
             <article>
-				  <img 
-    src={
-      post._embedded?.["wp:featuredmedia"]?.[0]?.media_details?.sizes?.medium?.source_url
-    }
-    alt=""
-  />
+              <img
+                src={
+                  post._embedded?.["wp:featuredmedia"]?.[0]?.media_details
+                    ?.sizes?.medium?.source_url
+                }
+                alt=""
+              />
               <h2>
                 <a
                   href={`/posts/${post.slug}/`}
                   set:html={post.title.rendered}
                 />
+                <p>
+                  {post.excerpt.rendered
+                    ? post.excerpt.rendered
+                    : "No excerpt available."}
+                </p>
               </h2>
               <Fragment set:html={post.content.rendered} />
             </article>
