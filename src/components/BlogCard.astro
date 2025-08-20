@@ -1,0 +1,39 @@
+---
+// src/components/BlogCard.astro
+const { image, title, subtitle, author, excerpt, slug } = Astro.props;
+import '../styles/globals.css';
+
+// Genera un id único por tarjeta
+const uid = `card-${(globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2))}`;
+---
+
+<article class="card" id={uid} tabindex="0">
+  <a href={`/post/${slug}`} style="text-decoration:none; color:inherit; display:block;">
+    <img class="card__img" src={image} alt={`${title} ${subtitle}`} loading="lazy" />
+    <div class="card__body">
+      <div class="accent-bar"></div>
+      <h3 class="card__title">{title}</h3>
+      <h3 class="card__subtitle">{subtitle}</h3>
+      <div class="meta">Por: {author}</div>
+    </div>
+    <div class="card__divider"></div>
+    <p class="excerpt">{excerpt}</p>
+  </a>
+
+  <!-- Script seguro: no usa currentScript y verifica null -->
+  <script>
+    (function () {
+    /** @type {HTMLElement | null} */
+    const card = document.getElementById('{uid}');
+    if (!card) return;
+
+    card.addEventListener('focus', () => {
+    card.style.boxShadow = '0 16px 40px rgba(18,38,63,.12)';
+    });
+
+    card.addEventListener('blur', () => {
+    card.style.boxShadow = '';
+    });
+    })();
+  </script>
+</article>

@@ -1,0 +1,64 @@
+---
+// src/pages/index.astro
+import '../styles/globals.css';
+import BlogCard from '../components/BlogCard.astro';
+
+let posts = [];
+
+try {
+  const response = await fetch('https://wp.tusanagustin.com/wp/wp-json/wp/v2/posts?_embed');
+  if (response.ok) {
+    const apiPosts = await response.json();
+
+    posts = apiPosts.map(post => {
+      const image = post._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.medium?.source_url || '';
+      const titleFull = post.title.rendered || '';
+      let title = titleFull;
+      let subtitle = '';
+      if (titleFull.includes('—')) {
+        [title, subtitle] = titleFull.split('—').map(s => s.trim());
+      } else if (titleFull.includes('\n')) {
+        [title, subtitle] = titleFull.split('\n').map(s => s.trim());
+      }
+      const author = post._embedded?.author?.[0]?.name || 'Autor Desconocido';
+      const excerpt = post.excerpt.rendered.replace(/<[^>]+>/g, '').trim();
+      const slug = post.slug;
+      return { image, title, subtitle, author, excerpt, slug };
+    });
+  } else {
+    console.error('Error al obtener posts:', response.status);
+  }
+} catch (error) {
+  console.error('Error en fetch:', error);
+}
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blog</title>
+    <meta name="description" content="Blog con Astro usando HTML, CSS y JavaScript puros" />
+  </head>
+  <body>
+    <main class="main-container">
+      <h1 class="section-title">BLOG</h1>
+      <div class="posts-grid">
+        {posts.length > 0 ? (
+          posts.map((p) => (
+            <BlogCard
+              image={p.image}
+              title={p.title}
+              subtitle={p.subtitle}
+              author={p.author}
+              excerpt={p.excerpt}
+              slug={p.slug}
+            />
+          ))
+        ) : (
+          <p>No hay posts disponibles.</p>
+        )}
+      </div>
+    </main>
+  </body>
+</html>

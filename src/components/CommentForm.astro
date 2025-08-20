@@ -1,0 +1,110 @@
+<section class="comment-form container">
+  <h2 class="comment-form__title">Deja un comentario</h2>
+  <form id="commentForm" class="comment-form__form" on:submit="handleSubmit(event)">
+    <div class="form-group">
+      <label for="author" class="form-label">Nombre <span aria-hidden="true">*</span></label>
+      <input type="text" id="author" name="author" class="form-input" required placeholder="Tu nombre" />
+    </div>
+    <div class="form-group">
+      <label for="email" class="form-label">Correo electrónico <span aria-hidden="true">*</span></label>
+      <input type="email" id="email" name="email" class="form-input" required placeholder="tu@email.com" />
+    </div>
+    <div class="form-group">
+      <label for="comment" class="form-label">Comentario <span aria-hidden="true">*</span></label>
+      <textarea id="comment" name="comment" class="form-textarea" required placeholder="Escribe tu comentario aquí..." rows="5"></textarea>
+    </div>
+    <button type="submit" class="btn-submit">Enviar comentario</button>
+    <p id="formMessage" class="form-message" role="alert" aria-live="polite"></p>
+  </form>
+</section>
+
+<script>
+  // JS puro para manejar el submit y validación simple
+  function handleSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const messageEl = form.querySelector('#formMessage');
+    const author = form.author.value.trim();
+    const email = form.email.value.trim();
+    const comment = form.comment.value.trim();
+
+    if (!author || !email || !comment) {
+      messageEl.textContent = 'Por favor completa todos los campos.';
+      messageEl.style.color = 'red';
+      return;
+    }
+
+    // Aquí podrías agregar lógica para enviar el comentario a un backend o API
+
+    messageEl.textContent = 'Gracias por tu comentario. Se enviará para revisión.';
+    messageEl.style.color = 'green';
+
+    form.reset();
+  }
+</script>
+
+<style>
+  .comment-form.container {
+    margin-top: 3rem;
+    padding: 1rem;
+    border-top: 1px solid #ccc;
+  }
+  .comment-form__title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .comment-form__form {
+    max-width: 600px;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+  .form-input:focus,
+  .form-textarea:focus {
+    border-color: #007acc;
+    outline: none;
+  }
+  .btn-submit {
+    background-color: #007acc;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  .btn-submit:hover,
+  .btn-submit:focus {
+    background-color: #005fa3;
+    outline: none;
+  }
+  .form-message {
+    margin-top: 1rem;
+    font-size: 1rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .comment-form__form {
+      width: 100%;
+    }
+  }
+</style>

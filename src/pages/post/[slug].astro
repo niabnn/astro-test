@@ -1,0 +1,77 @@
+---
+import PostLayout from '../../layouts/PostLayout.astro';
+import Comments from '../../components/Comments.astro';
+import CommentForm from '../../components/CommentForm.astro';
+
+export async function getStaticPaths() {
+  const response = await fetch('https://wp.tusanagustin.com/wp/wp-json/wp/v2/posts');
+  const posts = await response.json();
+
+  return posts.map(post => ({
+    params: { slug: post.slug }
+  }));
+}
+
+const { slug } = Astro.params;
+
+let post = null;
+let comments = [];
+
+try {
+  // Obtener post con _embed para imagen y autor
+  const response = await fetch(`https://wp.tusanagustin.com/wp/wp-json/wp/v2/posts?slug=${slug}&_embed`);
+  if (response.ok) {
+    const data = await response.json();
+    if (data.length > 0) {
+      const p = data[0];
+      const image = p._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.medium?.source_url || '';
+      const titleFull = p.title.rendered || '';
+      let title = titleFull;
+      let subtitle = '';
+      if (titleFull.includes('—')) {
+        [title, subtitle] = titleFull.split('—').map(s => s.trim());
+      } else if (titleFull.includes('\n')) {
+        [title, subtitle] = titleFull.split('\n').map(s => s.trim());
+      }
+      const author = p._embedded?.author?.[0]?.name || 'Autor Desconocido';
+      const date = p.date || '';
+      const category = p.categories?.[0] || '';
+      const readTime = '';
+      const content = p.content.rendered || '';
+      const id = p.id;
+
+      post = { image, title, subtitle, author, date, category, readTime, content, slug, id };
+
+      // Obtener comentarios para este post
+      const commentsResponse = await fetch(`https://wp.tusanagustin.com/wp/wp-json/wp/v2/comments?post=${id}`);
+      if (commentsResponse.ok) {
+        comments = await commentsResponse.json();
+      }
+    }
+  } else {
+    console.error('Error al obtener post:', response.status);
+  }
+} catch (error) {
+  console.error('Error en fetch:', error);
+}
+
+if (!post) {
+  throw new Error('Post no encontrado');
+}
+---
+
+<PostLayout
+  image={post.image}
+  title={post.title}
+  subtitle={post.subtitle}
+  author={post.author}
+  date={post.date}
+  category={post.category}
+  readTime={post.readTime}
+  content={post.content}
+/>
+
+<Comments comments={comments} />
+
+
+<CommentForm  />

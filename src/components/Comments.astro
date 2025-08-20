@@ -1,0 +1,194 @@
+---
+import md5 from 'blueimp-md5';
+const { comments } = Astro.props;
+
+function getGravatarUrl(email) {
+  if (!email) return 'https://www.gravatar.com/avatar/?d=mp&s=60';
+  const hash = md5(email.trim().toLowerCase());
+  return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=60`;
+}
+---
+
+<section class="comments container">
+  <h2 class="comments__title">Comentarios ({comments.length})</h2>
+  {comments.length === 0 ? (
+    <p class="comments__empty">No hay comentarios aún.</p>
+  ) : (
+    <ul class="comments__list">
+      {comments.map(comment => (
+        <li class="comment" key={comment.id}>
+          <img
+            class="comment__avatar"
+            src={getGravatarUrl(comment.author_email)}
+            alt={`Avatar de ${comment.author_name}`}
+            loading="lazy"
+            width="60"
+            height="60"
+          />
+          <div class="comment__body">
+            <div class="comment__header">
+              <p class="comment__author">{comment.author_name}</p>
+              <p class="comment__date">{new Date(comment.date).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </div>
+            <div class="comment__content" set:html={comment.content.rendered}></div>
+            <button class="comment__reply-btn" type="button" aria-expanded="false" aria-controls={`reply-form-${comment.id}`} onclick="toggleReplyForm(event)">Responder</button>
+            <form class="comment__reply-form" id={`reply-form-${comment.id}`} hidden onsubmit="handleReplySubmit(event)">
+              <textarea name="reply" rows="3" placeholder="Escribe tu respuesta..." required></textarea>
+              <button type="submit" class="btn-submit">Enviar respuesta</button>
+            </form>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
+
+<script>
+  function toggleReplyForm(event) {
+    const btn = event.currentTarget;
+    const formId = btn.getAttribute('aria-controls');
+    const form = document.getElementById(formId);
+    if (!form) return;
+    const isHidden = form.hasAttribute('hidden');
+    if (isHidden) {
+      form.removeAttribute('hidden');
+      btn.setAttribute('aria-expanded', 'true');
+      form.querySelector('textarea').focus();
+    } else {
+      form.setAttribute('hidden', '');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function handleReplySubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const textarea = form.querySelector('textarea');
+    if (!textarea.value.trim()) return;
+    alert('Gracias por tu respuesta. Se enviará para revisión.');
+    textarea.value = '';
+    form.setAttribute('hidden', '');
+    const btn = form.previousElementSibling;
+    if (btn && btn.classList.contains('comment__reply-btn')) {
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  }
+</script>
+
+<style>
+  .comments.container {
+    margin-top: 3rem;
+    padding: 1rem;
+    border-top: 1px solid #ccc;
+  }
+  .comments__title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    color: #222;
+  }
+  .comments__empty {
+    font-style: italic;
+    color: #666;
+  }
+  .comments__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .comment {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+  }
+  .comment__avatar {
+    border-radius: 50%;
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+  .comment__body {
+    flex: 1;
+  }
+  .comment__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+  .comment__author {
+    font-weight: 700;
+    color: #007acc;
+  }
+  .comment__date {
+    font-size: 0.85rem;
+    color: #999;
+  }
+  .comment__content {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  .comment__reply-btn {
+    background: none;
+    border: none;
+    color: #007acc;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+  .comment__reply-btn:hover,
+  .comment__reply-btn:focus {
+    color: #005fa3;
+    outline: none;
+  }
+  .comment__reply-form {
+    margin-top: 0.5rem;
+  }
+  .comment__reply-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  .btn-submit {
+    margin-top: 0.5rem;
+    background-color: #007acc;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  .btn-submit:hover,
+  .btn-submit:focus {
+    background-color: #005fa3;
+    outline: none;
+  }
+
+  @media (max-width: 600px) {
+    .comment {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .comment__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+  }
+</style>
