@@ -1,94 +1,22 @@
 ---
-import BlogsCardsGrid from "@/components/BlogsCardsGrid.astro";
-import { Button } from "@/components/ui/button";
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/Header.astro';
+import Hero from '@/components/Hero.astro';
+import SectionCasate from '@/components/SectionCasate.astro';
+import VideoPlayer from '@/components/VideoPlayer.astro';
+import SectionVentajas from '@/components/SectionVentajas.astro';
+import GaleriaPlanifica from '@/components/GaleriaPlanifica.astro';
+import SectionConoce from '@/components/SectionConoce.astro';
 
-interface WPPost {
-  slug: string;
-  title: { rendered: string };
-  content: { rendered: string };
-  excerpt: { rendered: string };
-  _embedded?: {
-    "wp:featuredmedia"?: Array<{
-      media_details?: {
-        sizes?: {
-          medium?: { source_url: string };
-        };
-      };
-    }>;
-  };
-  // Add other fields as needed
-}
-
-const res = await fetch(
-  "https://wp.tusanagustin.com/wp/wp-json/wp/v2/posts?_embed"
-);
-const posts: WPPost[] = await res.json();
+import Footer from '@/components/Footer.astro';
 ---
-
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Regular Raspberry Blog</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  </head>
-  <body style="font-family: sans-serif; margin: 0; background: #faf6f2;">
-    <header
-      style="background: #E6A4F7FF; color: #fff; padding: 2rem 0; text-align: center;"
-    >
-      <h1>Regular Raspberry Blog</h1>
-      <button class="btn-primary"> ver blogs </button>
-
-      <p>{posts[2].title?.rendered}</p>
-    </header>
-    <main >
-      <section>
-        <!-- Display featured image using _embedded -->
-        -
-        {
-          posts.map((post) => (
-            <article>
-              <img
-                src={
-                  post._embedded?.["wp:featuredmedia"]?.[0]?.media_details
-                    ?.sizes?.medium?.source_url
-                }
-                alt=""
-              />
-              <h2>
-                <a
-                  href={`/posts/${post.slug}/`}
-                  set:html={post.title.rendered}
-                />
-                <p>
-                  {post.excerpt.rendered
-                    ? post.excerpt.rendered
-                    : "No excerpt available."}
-                </p>
-              </h2>
-              <Fragment set:html={post.content.rendered} />
-            </article>
-          ))
-        }
-      </section>
-      <section style="margin-top: 2rem;">
-        <h2>About</h2>
-        <p>
-          Regular Raspberry Blog is your source for thoughtful articles,
-          tutorials, and stories. Join us as we explore technology, creativity,
-          and more.
-        </p>
-      </section>
-      <section style="margin-top: 2rem;">
-        <h2>About</h2>
-        <p>
-          Regular Raspberry Blog is your source for thoughtful articles,
-          tutorials, and stories. Join us as we explore technology, creativity,
-          and more.
-        </p>
-      </section>
-    </main>
-    <footer style="background: #eee; text-align: center; padding: 1rem;">
-      &copy; 2024 Regular Raspberry Blog
-    </footer>
-  </body>
-</html>
+<BaseLayout title="Tu San Agustín">
+  <Header />
+  <Hero />
+  <SectionCasate />
+  <VideoPlayer />
+  <SectionVentajas />
+  <GaleriaPlanifica />
+  <SectionConoce />
+  <Footer />
+</BaseLayout>
